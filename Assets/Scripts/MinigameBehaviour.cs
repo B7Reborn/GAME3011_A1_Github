@@ -9,10 +9,10 @@ public class MinigameBehaviour : MonoBehaviour
 
     // Setup required variables and containers
     [SerializeField] private TileBehaviour tile;
-    private int numRows = 32;
-    private int numColumns = 40;
+    public int numRows = 32;
+    public int numColumns = 40;
     private int numTiles = 0;
-    private int numFullValTiles = 32;
+    private int numFullValTiles = 40;
     private TileBehaviour[] tileList;
     public TileBehaviour[,] tileGrid;
 
@@ -40,12 +40,13 @@ public class MinigameBehaviour : MonoBehaviour
             for (int c = 0; c < numColumns; c++)
             {
                 TileBehaviour newTile = Instantiate(tile, new Vector3((112 + (c * 17)), (106 + (r * 17))), Quaternion.identity, this.transform);
-                tileGrid[r, c] = newTile;
-                tileList[(r * numColumns) + c] = newTile;
+                newTile.tileRow = r;
+                newTile.tileColumn = c;
+                tileGrid[r, c] = tileList[(r * numColumns) + c] = newTile;
             }
         }
 
-        // Randomly distribute the full value tiles
+        // Randomly distribute the full value tiles, looping until all are distributed
         while (numFullValTiles > 0)
         {
             for (int n = 0; n < numTiles; n++)
@@ -67,9 +68,47 @@ public class MinigameBehaviour : MonoBehaviour
         }
         
         // Distribute the half value tiles
+        for (int row = 0; row < numRows; row++)
+        {
+            for (int column = 0; column < numColumns; column++)
+            {
+                if (tileGrid[row, column].tileValue == 3)
+                {
+                    for (int r = row - 1; r < row + 2; r++)
+                    {
+                        for (int c = column - 1; c < column + 2; c++)
+                        {
+                            if (r > -1 && r < numRows && c > -1 && c < numColumns && tileGrid[r, c].tileValue != 3)
+                            {
+                                tileGrid[r, c].tileValue = 2;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
 
         // Distribute the quarter value tiles
+        for (int row = 0; row < numRows; row++)
+        {
+            for (int column = 0; column < numColumns; column++)
+            {
+                if (tileGrid[row, column].tileValue == 2)
+                {
+                    for (int r = row - 1; r < row + 2; r++)
+                    {
+                        for (int c = column - 1; c < column + 2; c++)
+                        {
+                            if (r > -1 && r < numRows && c > -1 && c < numColumns && tileGrid[r, c].tileValue != 3 && tileGrid[r, c].tileValue != 2)
+                            {
+                                tileGrid[r, c].tileValue = 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
 
